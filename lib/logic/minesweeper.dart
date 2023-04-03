@@ -3,6 +3,7 @@ import 'dart:io';
 
 const bomb = 88;
 const empty = 0;
+const unpressed = -1;
 
 /*
 [-1,-1], [-1, 0], [-1, 1],
@@ -31,16 +32,17 @@ class Minesweeper {
   }
 
   initGame() {
-    status = game = [];
+    status = [];
+    game = [];
     for (int i = 0; i < nRow; i++) {
       game.add(<int>[]);
       status.add(<int>[]);
       for (int j = 0; j < nCol; j++) {
         status[i].add(empty);
-        game[i].add(empty);
+        game[i].add(unpressed);
       }
     }
-    generateBombs(20);
+    generateBombs(150);
     countBombs();
   }
 
@@ -68,23 +70,14 @@ class Minesweeper {
   }
 
   bool interact(int i, int j) {
-    game[i][j] = status[i][j];
-
-    switch (status[i][j]) {
-      case empty:
-        show(i, j);
-        break;
-      case bomb:
-        return false;
-    }
-
-    return true;
+    show(i, j);
+    return status[i][j] == bomb ? false : true;
   }
 
   void show(int i, int j) {
-    game[i][j] = status[i][j];
+    if (checkOffset(i, j) == false || game[i][j] != unpressed) return;
 
-    if (checkOffset(i, j)) return;
+    game[i][j] = status[i][j];
     if (status[i][j] != 0) {
       return;
     }
